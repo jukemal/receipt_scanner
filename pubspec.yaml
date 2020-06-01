@@ -25,7 +25,6 @@ dependencies:
   cupertino_icons: ^0.1.2
   google_fonts: ^1.1.0
   camera: ^0.5.7+4
-  qr_code_scanner: ^0.0.12
   firebase_auth: ^0.16.1
   cloud_firestore: ^0.13.4+2
   provider: ^4.0.4

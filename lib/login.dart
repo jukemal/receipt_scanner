@@ -287,7 +287,7 @@ class _LoginState extends State<Login> {
   Container buttonRegister(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(top: 15, bottom: 35),
-      child: GestureDetector(
+      child: InkWell(
         onTap: () {
           //loading = true;
           Navigator.push(
