@@ -1,73 +1,92 @@
 import 'package:flutter/material.dart';
-import 'package:receiptscanner/pages/home.dart';
-import 'package:receiptscanner/groceryItem.dart';
+import 'package:provider/provider.dart';
+import 'package:receiptscanner/services/database_service.dart';
 
-
-class Reminder_List extends StatelessWidget {
-
- // final items = List<String>.generate(10000, (i) => "Item $i");
-  final itemList = [
-    new Groceryitem("Rice", "2 days"),
-    new Groceryitem("Sugar", "1 day"),
-    new Groceryitem("Milk", "2 days"),
-    new Groceryitem("Bread", "2 days"),
-    new Groceryitem("Flour", "1 day"),
-    new Groceryitem("Butter", "2 days"),
-  ];
+class ReminderList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-
-        appBar : AppBar(
-          backgroundColor: Colors.green,
-          title: Text(
-                "Reminder List",
-              //textAlign: TextAlign.center,
-            ),
-
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () async {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
-            },
-          ),
-        ),
-        body: ListView.builder(
-            itemCount: itemList.length,//items.length,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          itemList[index].PName,
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                            //"Rice"
-                        ),
-                        Text(
-                          itemList[index].Pdays,
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                            //"2 days"
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: Text(
+          "Reminder List",
         ),
       ),
+      body: FutureBuilder<List<ListItem>>(
+        future: Provider.of<DatabaseService>(context, listen: false)
+            .getUserWithRecommendedList(),
+        builder:
+            (BuildContext context, AsyncSnapshot<List<ListItem>> snapshot) {
+          Widget widget;
+          if (snapshot.hasData) {
+            List<ListItem> list = snapshot.data;
+            widget = ListView.builder(
+                itemCount: list.length, //items.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 10),
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              list[index].item,
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              list[index].days <= 5
+                                  ? "${list[index].days} Days"
+                                  : "Buy",
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                });
+          } else if (snapshot.hasError) {
+            widget = Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 60,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text('Error: ${snapshot.error}'),
+                  )
+                ],
+              ),
+            );
+          } else {
+            widget = Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    child: CircularProgressIndicator(),
+                    width: 60,
+                    height: 60,
+                  ),
+                ],
+              ),
+            );
+          }
+          return widget;
+        },
+      ),
     );
-
   }
 }

@@ -12,6 +12,9 @@ User _$UserFromJson(Map<String, dynamic> json) {
     userName: json['userName'] as String,
     email: json['email'] as String,
     phoneNumber: json['phoneNumber'] as String,
+    list: (json['list'] as Map<String, dynamic>)?.map(
+      (k, e) => MapEntry(k, e == null ? null : DateTime.parse(e as String)),
+    ),
   );
 }
 
@@ -20,4 +23,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'userName': instance.userName,
       'email': instance.email,
       'phoneNumber': instance.phoneNumber,
+      'list': instance.list?.map((k, e) => MapEntry(k, e?.toIso8601String())),
     };

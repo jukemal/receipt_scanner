@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:receiptscanner/services/auth_service.dart';
+import 'package:receiptscanner/services/database_service.dart';
 import 'package:receiptscanner/shared/loading.dart';
 
 import 'login.dart';
@@ -370,6 +371,7 @@ class _RegisterState extends State<Register> {
                 );
               } else {
                 Navigator.pop(context);
+                Provider.of<DatabaseService>(context, listen: false).createDummyReceipts();
               }
             }
           },

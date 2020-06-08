@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
+import 'package:receiptscanner/models/receipt.dart';
+import 'package:receiptscanner/services/database_service.dart';
 
 class PrintText extends StatefulWidget {
   final List<String> lines;
@@ -41,7 +45,7 @@ class _PrintTextState extends State<PrintText> {
             ),
           ),
           Container(
-			  margin: EdgeInsets.only(bottom: 10,top: 5),
+            margin: EdgeInsets.only(bottom: 10, top: 5),
             child: RaisedButton(
                 child: Text(
                   'Save',
@@ -50,24 +54,37 @@ class _PrintTextState extends State<PrintText> {
                   ),
                 ),
                 color: Colors.green,
-                onPressed: () {
-//							String receiptID;
-//							final CollectionReference receiptcollection = Firestore
-//								.instance.collection('receipts');
-//
-//							receiptcollection.add({
-//								'date': DateTime.now(),
-//
-//							}).then((document) => {
-//							receiptID = document.documentID;
-//							});
-//							for (List<String> receipt in inputList) {
-//								print('got receipt' + receipt[0]);
-//								receiptcollection.document(receiptID).setData(
-//									{'products': [receipt[0], receipt[1]]});
-//							}
+                onPressed: () async {
+                  Map<String, int> itemList = Map();
+
+                  for (int i = 1; i < widget.lines.length; i++) {
+                    List<String> wordList =
+                        widget.lines[i].split(RegExp(r" +"));
+                    try {
+                      if (wordList[1].contains(RegExp(r'^[a-zA-Z\s]+$'))) {
+                        itemList[wordList[1].toLowerCase()] =
+                            int.parse(wordList[4].substring(0, 1));
+                      }
+                    } catch (e) {}
+                  }
+
+                  itemList.forEach(
+                      (key, value) => print("item : $key, quantity : $value"));
+
+                  if (itemList.entries.length > 0) {
+                    await Provider.of<DatabaseService>(context, listen: false)
+                        .addReceipt(Receipt(
+                            timeStamp: DateTime.now(), itemList: itemList));
+
+                    Fluttertoast.showToast(msg: "Successfully Added.");
+                  }
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+
+                  Provider.of<DatabaseService>(context, listen: false)
+                      .generateShoppingList();
                 }),
-          )
+          ),
         ],
       ),
     );
